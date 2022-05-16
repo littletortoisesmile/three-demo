@@ -1,3 +1,11 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: chen.yefeng
+ * @Date: 2022-05-15 20:23:11
+ * @LastEditors: chen.yefeng
+ * @LastEditTime: 2022-05-16 22:52:15
+-->
 <template>
   <div id="app">
     <Three />
@@ -5,7 +13,7 @@
 </template>
 
 <script>
-import Three from './components/three.vue'
+import Three from './components/three copy.vue'
 
 export default {
   name: 'App',

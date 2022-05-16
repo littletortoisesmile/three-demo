@@ -63,50 +63,20 @@ export default {
         bufArrays.push(array)
       })
 
-      // const gltfLoader = new GLTFLoader(manager)
-
-      // gltfLoader.load('/box.glb', gltf => {
-      //   gltf.scene.traverse(child => {
-      //     if (child.isMesh) {
-      //       child.geometry.translate(0, 0.5, 0)
-      //       const { array } = child.geometry.attributes.position
-      //       bufArrays.push(array)
-      //     }
-      //   })
-      // })
-      // gltfLoader.load('/box1.glb', gltf => {
-      //   gltf.scene.traverse(child => {
-      //     if (child.isMesh) {
-      //       child.geometry.scale(0.5, 0.5, 0.5)
-      //       const { array } = child.geometry.attributes.position
-      //       bufArrays.push(array)
-      //     }
-      //   })
-      // })
-      // gltfLoader.load('/sphere.glb', gltf => {
-      //   gltf.scene.traverse(child => {
-      //     if (child.isMesh) {
-      //       child.geometry.translate(1, 0, 0)
-      //       const { array } = child.geometry.attributes.position
-      //       bufArrays.push(array)
-      //     }
-      //   })
-      // })
-
       this.geometry = new THREE.BufferGeometry()
       this.geometry.tween = []
       const vertices = []
 
       for (let i = 0; i < modalNum; i++) {
-        const position = THREE.MathUtils.randFloat(-5, 5)
+        const position = THREE.MathUtils.randFloat(-15, 15)
         this.geometry.tween.push(new TWEEN.Tween({ position }).easing(TWEEN.Easing.Exponential.In))
         vertices.push(position)
       }
-      for (let i = modalNum; i < particalNum; i++) {
-        const position = THREE.MathUtils.randFloat(-25, 25)
-        this.geometry.tween.push(new TWEEN.Tween({ position }).easing(TWEEN.Easing.Exponential.In))
-        vertices.push(position)
-      }
+      // for (let i = modalNum; i < particalNum; i++) {
+      //   const position = THREE.MathUtils.randFloat(-25, 25)
+      //   this.geometry.tween.push(new TWEEN.Tween({ position }).easing(TWEEN.Easing.Exponential.In))
+      //   vertices.push(position)
+      // }
 
       this.geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3))
 
@@ -114,7 +84,7 @@ export default {
         size: 0.2,
         map: new THREE.TextureLoader().load('/white-dot.png'),
         alphaTest: 0.1,
-        opacity: 0.5,
+        opacity: 0.3,
         transparent: true,
         depthTest: true
       }))
@@ -131,17 +101,17 @@ export default {
     },
 
     transition () {
-      const self = this
-      for (let i = 0, j = 0; i < modalNum; i++, j++) {
-        const item = this.geometry.tween[i]
-        if (j >= bufArrays[current].length) {
-          j = 0
-        }
-        item.to({ position: bufArrays[current][j] }, THREE.MathUtils.randFloat(1000, 4000)).onUpdate(function () {
-          self.geometry.attributes.position.array[i] = this.position
-          self.geometry.attributes.position.needsUpdate = true
-        }).start()
-      }
+      // const self = this
+      // for (let i = 0, j = 0; i < modalNum; i++, j++) {
+      //   const item = this.geometry.tween[i]
+      //   if (j >= bufArrays[current].length) {
+      //     j = 0
+      //   }
+      //   item.to({ position: bufArrays[current][j] }, THREE.MathUtils.randFloat(1000, 4000)).onUpdate(function () {
+      //     self.geometry.attributes.position.array[i] = this.position
+      //     self.geometry.attributes.position.needsUpdate = true
+      //   }).start()
+      // }
 
       // setTimeout(() => { this.transition() }, 5000)
       // current = (current + 1) % 3

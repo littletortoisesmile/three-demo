@@ -10,10 +10,27 @@ import TWEEN from 'three-tween'
 
 const bufArrays = []
 let current = 0
+const particalNum = 1000
+const modalNum = 10000
+let windowHalfX = window.innerWidth / 2;
+let windowHalfY = window.innerHeight / 2;
 
 export default {
+  data() {
+    return {
+      timeout: undefined,
+      mouseX: 0,
+      mouseY: 0,
+    }
+  },
   mounted () {
     this._initBase()
+  },
+  destroyed() {
+    clearTimeout(this.timeout)
+  },
+  deactivated() {
+    clearTimeout(this.timeout)
   },
   methods: {
     _initBase () {
@@ -76,7 +93,7 @@ export default {
       this.geometry.tween = []
       const vertices = []
 
-      for (let i = 0; i < 26016; i++) {
+      for (let i = 0; i < modalNum; i++) {
         const position = THREE.MathUtils.randFloat(-4, 4)
         this.geometry.tween.push(new TWEEN.Tween({ position }).easing(TWEEN.Easing.Exponential.In))
         vertices.push(position)
@@ -85,7 +102,7 @@ export default {
       this.geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3))
 
       this.points = new THREE.Points(this.geometry, new THREE.PointsMaterial({
-        size: 0.032,
+        size: 0.08,
         map: new THREE.TextureLoader().load('/white-dot.png'),
         alphaTest: 0.1,
         opacity: 0.5,
@@ -95,17 +112,41 @@ export default {
 
       this.scene.add(this.points)
 
+      this.geometry2 = new THREE.BufferGeometry()
+      this.geometry2.tween = []
+      const vertices2 = []
+
+      for (let i = 0; i < particalNum; i++) {
+        const position = THREE.MathUtils.randFloat(-4, 4)
+        this.geometry2.tween.push(new TWEEN.Tween({ position }).easing(TWEEN.Easing.Exponential.In))
+        vertices2.push(position)
+      }
+
+      this.geometry2.setAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices2), 3))
+
+      this.points2 = new THREE.Points(this.geometry2, new THREE.PointsMaterial({
+        size: 0.1,
+        map: new THREE.TextureLoader().load('/white-dot.png'),
+        alphaTest: 0.1,
+        opacity: 0.2,
+        transparent: true,
+        depthTest: true
+      }))
+
+      this.scene.add(this.points2)
+
       this.controls = new OrbitControls(this.camera, this.renderer.domElement)
       this.controls.update()
 
       this.$refs.three.appendChild(this.renderer.domElement)
       window.addEventListener('resize', this.onWindowResize, false)
+      window.addEventListener( 'mousemove', this.onDocumentMouseMove );
       this.render()
     },
 
     transition () {
       const self = this
-      for (let i = 0, j = 0; i < 26016; i++, j++) {
+      for (let i = 0, j = 0; i < modalNum; i++, j++) {
         const item = this.geometry.tween[i]
         if (j >= bufArrays[current].length) {
           j = 0
@@ -116,15 +157,22 @@ export default {
         }).start()
       }
 
-      setTimeout(() => { this.transition() }, 5000)
+      this.timeout = setTimeout(() => { this.transition() }, 10000)
       current = (current + 1) % 3
     },
 
     render () {
-      this.points.rotation.x += 0.0003
-      this.points.rotation.y += 0.001
-      this.points.rotation.z += 0.002
+      this.points2.rotation.x += 0.0003
+      this.points2.rotation.y += 0.001
+      this.points2.rotation.z += 0.002
       TWEEN.update()
+
+      if(this.mouseX != 0 || this.mouseY != 0) {
+        this.camera.position.x += ( this.mouseX - this.camera.position.x ) * .0002;
+        this.camera.position.y += ( - this.mouseY - this.camera.position.y ) * .0002;
+        this.camera.lookAt( this.scene.position );
+      }
+
       this.renderer.render(this.scene, this.camera)
       requestAnimationFrame(this.render)
     },
@@ -132,6 +180,14 @@ export default {
       this.renderer.setSize(window.innerWidth, window.innerHeight)
       this.camera.aspect = window.innerWidth / window.innerHeight
       this.camera.updateProjectionMatrix()
+    },
+    onDocumentMouseMove(event) {
+      this.mouseX = ( event.clientX - windowHalfX ) / 2;
+      this.mouseY = ( event.clientY - windowHalfY ) / 2;
+      if (event.clientX < 20 || event.clientX > (windowHalfX * 2 - 20) || event.clientY < 20 || event.clientY > (windowHalfY * 2 -20)) {
+        this.mouseX = 0
+        this.mouseY = 0
+      }
     },
     backgroundTexture () {
       const canvas = document.createElement('canvas')
